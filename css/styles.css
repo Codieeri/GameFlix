@@ -556,14 +556,18 @@ ul,ol{list-style:none}
 }
 .exit-kids-btn:hover{background:rgba(255,255,255,0.25)}
 
-/* ========== IMAGE LIGHTBOX ========== */
-#lightbox{
-  position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);display:none;
-  align-items:center;justify-content:center;padding:40px;cursor:pointer;
+#lightbox {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.95);
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s ease; cursor: zoom-out;
 }
-#lightbox.active{display:flex}
-#lightbox img{max-width:100%;max-height:100%;border-radius:8px;object-fit:contain}
-
+#lightbox.active { opacity: 1; pointer-events: all; }
+#lightbox img {
+  max-width: 90vw; max-height: 90vh;
+  border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
 /* ========== AUTH NAV BUTTON ========== */
 .auth-nav-wrap{position:relative}
 .auth-nav-btn{
