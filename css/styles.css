@@ -191,7 +191,11 @@ ul,ol{list-style:none}
 #navbar .nav-inner{display:flex;align-items:center;width:100%;max-width:1400px;margin:0 auto}
 #navbar .logo{font-size:1.8rem;font-weight:900;color:#e50914;letter-spacing:2px;margin-right:24px;
   text-shadow:0 0 20px rgba(229,9,20,0.4);white-space:nowrap;transition:color .3s;display:flex;align-items:center;gap:10px}
-#navbar .logo .logo-icon{height:56px;width:auto;object-fit:contain;filter:drop-shadow(0 0 8px rgba(229,9,20,0.5))}
+#navbar .logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
 #navbar.kids-mode .logo{color:#a855f7;text-shadow:0 0 20px rgba(168,85,247,0.4)}
 #navbar.kids-mode .logo .logo-icon{filter:drop-shadow(0 0 8px rgba(168,85,247,0.5))}
 #navbar .nav-links{display:none;gap:16px;align-items:center}
