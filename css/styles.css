@@ -221,8 +221,8 @@ ul,ol{list-style:none}
 
 /* LOGO IMAGE */
 .logo-icon{
-  width:40px;
-  height:40px;
+  height:1.8em;   
+  width:auto;
   object-fit:contain;
 }
 
