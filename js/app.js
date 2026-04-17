@@ -75,9 +75,21 @@ function findGameById(id) {
 // ========== API HELPERS ==========
 async function fetchScreenshots(appid) {
   try {
-    const res = await fetch(`/api/games/${appid}/screenshots`);
+    const apiUrl = `https://store.steampowered.com/api/appdetails?appids=${appid}&filters=screenshots,basic`;
+    const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(apiUrl)}`;
+    const res = await fetch(proxyUrl);
     if (!res.ok) return {screenshots:[], fullDescription:''};
-    return res.json();
+    const data = await res.json();
+    const appData = data[String(appid)];
+    if (!appData || !appData.success) return {screenshots:[], fullDescription:''};
+    return {
+      screenshots: (appData.data.screenshots || []).map(s => ({
+        path_thumbnail: s.path_thumbnail,
+        path_full: s.path_full,
+        id: s.id
+      })),
+      fullDescription: appData.data.detailed_description || appData.data.about_the_game || ''
+    };
   } catch(e) { console.error('Screenshot fetch error:', e); return {screenshots:[], fullDescription:''}; }
 }
 async function apiPost(path, data) {
@@ -644,13 +656,13 @@ function renderDetailCard(g) {
       <a href="${url}" target="_blank" rel="noopener" class="detail-btn-play">
         ${SVG.play} Play Now
       </a>
-      <div class="detail-section" id="detail-screenshots-section" style="display:none">
-        <h3>Screenshots</h3>
-        <div class="detail-screenshots"><div class="no-ss">Loading screenshots...</div></div>
-      </div>
       <div class="detail-section">
         <h3>About</h3>
         <div class="detail-desc" id="detail-full-desc">${escHtml(g.short_description || 'No description available.')}</div>
+      </div>
+      <div class="detail-section" id="detail-screenshots-section" style="display:none">
+        <h3>Screenshots</h3>
+        <div class="detail-screenshots"><div class="no-ss">Loading screenshots...</div></div>
       </div>
     </div>
   `;
