@@ -61,19 +61,6 @@ const GAMES_DATA = [
   {id:291550, title:"Brawlhalla", thumbnail:"https://cdn.cloudflare.steamstatic.com/steam/apps/291550/header.jpg", genre:"Fighting", developer:"Blue Mammoth Games", publisher:"Blue Mammoth Games", platform:"Windows", release_date:"Nov 03, 2015", short_description:"Brawlhalla is a free platform fighting game with over 50 playable characters. Battle with friends in online multiplayer or locally with up to 8 players.", game_url:"https://store.steampowered.com/app/291550/", rating:"Very Positive", sections:["kids"]},
   {id:252950, title:"Rocket League", thumbnail:"https://cdn.cloudflare.steamstatic.com/steam/apps/252950/header.jpg", genre:"Sports", developer:"Psyonix", publisher:"Epic Games", platform:"Windows", release_date:"Jul 07, 2015", short_description:"Rocket League is a high-powered hybrid of arcade-style soccer and vehicular mayhem. Easy to pick up but challenging to master, with physics-based competition at its core.", game_url:"https://store.steampowered.com/app/252950/", rating:"Very Positive", sections:["kids"]},
 ];
-function showScreenshots(screenshots) {
-  const ssRow = document.getElementById("screenshots-row");
-  ssRow.innerHTML = "";
-
-  screenshots.forEach(sc => {
-    const img = document.createElement("img");
-
-    img.src = "https://images.igdb.com/igdb/image/upload/t_screenshot_big/" + sc.image_id + ".jpg";
-    img.style.height = "150px";
-    img.style.marginRight = "10px";
-
-    ssRow.appendChild(img);
-  });
 
 // Helper: get games for a section
 function getGamesForSection(key) {
