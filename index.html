@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GAMEFLIX - Free Game Discovery</title>
-<link rel="icon" type="image/jpeg" href="/favicon.jpg">
+<link rel="icon" type="image/jpeg" href="favicon.jpg">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body data-theme="dark">
@@ -47,7 +47,6 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         Sign In
       </button>
-
       <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
         <span></span><span></span><span></span>
       </button>
@@ -58,7 +57,7 @@
     <a href="#" onclick="scrollToTop(event);closeMobileMenu()">Home</a>
     <a href="#" onclick="scrollToSection(event,'section-popular');closeMobileMenu()">Popular</a>
     <a href="#" onclick="scrollToSection(event,'section-adventure');closeMobileMenu()">Adventure</a>
-    <a href="#" onclick="scrollToSection(event,'section-horror');closeMobileMenu()"Horror</a>
+    <a href="#" onclick="scrollToSection(event,'section-horror');closeMobileMenu()">Horror</a>
     <a href="#" onclick="scrollToSection(event,'section-new-releases');closeMobileMenu()">New Releases</a>
   </div>
   <div class="navbar-bar"><div class="navbar-shimmer"></div></div>
@@ -171,6 +170,11 @@
     </div>
   </div>
 </div>
+
+<!-- ========== FOOTER ========== -->
+<footer id="footer">
+  <p class="footer-credits">Made By Riya & GameFlix Development Team With &#x2764;&#xFE0F;</p>
+</footer>
 
 <script src="js/app.js"></script>
 </body>
