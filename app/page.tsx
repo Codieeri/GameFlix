@@ -1,23 +1,235 @@
-// Fetch screenshots from Steam API asynchronously
-try {
-  const result = await fetchScreenshots(game.id);
-  if (result.screenshots && result.screenshots.length > 0) {
-    const ssSection = document.getElementById('detail-screenshots-section');
-    if (ssSection) {
-      ssSection.style.display = '';
-      const ssContainer = ssSection.querySelector('.gf-detail-screenshots');
-      if (ssContainer) {
-        ssContainer.innerHTML = result.screenshots.map((s: any) =>
-          `<img src="${s.path_thumbnail}" alt="Screenshot" onclick="window._openLightbox('${s.path_full}')" loading="lazy" style="cursor:pointer;border-radius:6px;transition:transform .2s">`
-        ).join('');
+'use client'
+
+import { useEffect } from 'react'
+
+export default function Home() {
+  useEffect(() => {
+    // Dynamically load the GameFlix styles and scripts
+    const loadGameFlix = () => {
+      // Load CSS
+      if (!document.getElementById('gameflix-css')) {
+        const link = document.createElement('link')
+        link.id = 'gameflix-css'
+        link.rel = 'stylesheet'
+        link.href = '/css/styles.css'
+        document.head.appendChild(link)
+      }
+
+      // Remove default Next.js styles
+      const nextStyles = document.querySelectorAll('style[data-nextjs]')
+      nextStyles.forEach(el => el.remove())
+
+      // Load JS
+      if (!document.getElementById('gameflix-js')) {
+        const script = document.createElement('script')
+        script.id = 'gameflix-js'
+        script.src = '/js/app.js'
+        document.body.appendChild(script)
       }
     }
-  }
-  if (result.fullDescription) {
-    const descEl = document.getElementById('detail-full-desc');
-    if (descEl) {
-      descEl.innerHTML = result.fullDescription;
-      descEl.style.display = '';
+
+    // Clear the page and inject GameFlix HTML
+    document.body.setAttribute('data-theme', 'dark')
+    document.body.style.cssText = ''
+
+    const existing = document.getElementById('gameflix-root')
+    if (!existing) {
+      // Hide the default Next.js content
+      const root = document.getElementById('root')
+      if (root) {
+        root.innerHTML = ''
+        root.style.display = 'none'
+      }
+
+      const container = document.createElement('div')
+      container.id = 'gameflix-root'
+      container.innerHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAMEFLIX - Free Game Discovery</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body data-theme="dark">
+
+<!-- ========== CINEMATIC INTRO ========== -->
+<div id="splash">
+  <div class="intro-glow"></div>
+  <div class="intro-streaks"></div>
+  <div class="intro-logo" id="intro-logo">
+    <span class="letter letter-g">G</span><span class="letter">A</span><span class="letter">M</span><span class="letter">E</span><span class="letter">F</span><span class="letter">L</span><span class="letter">I</span><span class="letter">X</span>
+  </div>
+  <button class="intro-skip" id="intro-skip">Skip Intro ▸</button>
+</div>
+
+<!-- ========== NAVBAR ========== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="scrollToTop(event)"><img src="/logo.png" alt="GameFlix Logo" class="logo-icon">GAMEFLIX</a>
+    <div class="nav-links" id="nav-links">
+      <a href="#" onclick="scrollToTop(event)">Home</a>
+      <a href="#" onclick="scrollToSection(event,'section-popular')">Popular</a>
+      <a href="#" onclick="scrollToSection(event,'section-adventure')">Adventure</a>
+      <a href="#" onclick="scrollToSection(event,'section-horror')">Horror</a>
+      <a href="#" onclick="scrollToSection(event,'section-new-releases')">New Releases</a>
+    </div>
+    <div class="nav-right">
+      <div id="search-box">
+        <svg class="search-icon-pos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search-input" placeholder="Search games..." autocomplete="off">
+        <div id="search-dropdown"></div>
+      </div>
+      <button class="nav-btn" id="search-toggle-btn" title="Search" style="display:none" onclick="toggleMobileSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+      <button class="kids-btn" id="kids-toggle" onclick="toggleKidsMode()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="5"/><path d="M12 15v3"/><path d="M8 20h8"/><path d="M9 5c0-1 .5-2 1.5-2"/><path d="M15 5c0-1-.5-2-1.5-2"/></svg>
+        Kids
+      </button>
+      <button class="auth-nav-btn" id="auth-nav-btn" onclick="openAuthModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu">
+    <input type="text" id="mobile-search" placeholder="Search games..." autocomplete="off" oninput="handleMobileSearch(this.value)">
+    <a href="#" onclick="scrollToTop(event);closeMobileMenu()">Home</a>
+    <a href="#" onclick="scrollToSection(event,'section-popular');closeMobileMenu()">Popular</a>
+    <a href="#" onclick="scrollToSection(event,'section-adventure');closeMobileMenu()">Adventure</a>
+    <a href="#" onclick="scrollToSection(event,'section-horror');closeMobileMenu()">Horror</a>
+    <a href="#" onclick="scrollToSection(event,'section-new-releases');closeMobileMenu()">New Releases</a>
+  </div>
+  <div class="navbar-bar"><div class="navbar-shimmer"></div></div>
+</nav>
+
+<!-- ========== HERO SECTION ========== -->
+<div id="hero">
+  <div id="hero-slides"></div>
+  <div class="hero-dots" id="hero-dots"></div>
+</div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<div id="main-content">
+  <div id="normal-content"></div>
+  <div id="kids-content">
+    <div class="kids-header">
+      <h2>Kids Games</h2>
+      <p>Safe, fun games for players of all ages!</p>
+    </div>
+    <div class="kids-grid" id="kids-grid"></div>
+  </div>
+</div>
+
+<!-- ========== GAME DETAIL OVERLAY ========== -->
+<div id="game-detail">
+  <button class="detail-close" onclick="closeGameDetail()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="detail-card" id="detail-card"></div>
+</div>
+
+<!-- ========== LIGHTBOX ========== -->
+<div id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt="Screenshot"></div>
+
+<!-- ========== AUTH MODAL ========== -->
+<div id="auth-modal" class="auth-modal">
+  <div class="auth-backdrop" onclick="closeAuthModal()"></div>
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuthModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div id="auth-signin" class="auth-view active">
+      <div class="auth-header">
+        <div class="auth-logo-wrap">
+          <img src="/logo.png" alt="Logo" class="auth-logo-icon">
+          <span class="auth-logo-text">GAMEFLIX</span>
+        </div>
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-subtitle">Sign in to your account</p>
+      </div>
+      <form class="auth-form" onsubmit="handleSignIn(event)">
+        <div class="auth-field">
+          <label>Email</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="signin-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="signin-password" placeholder="Enter your password" required autocomplete="current-password">
+          </div>
+        </div>
+        <div id="signin-error" class="auth-error" style="display:none"></div>
+        <button type="submit" class="auth-submit">Sign In</button>
+      </form>
+      <div class="auth-switch">
+        Don't have an account? <a href="#" onclick="switchAuthView('signup')">Create one</a>
+      </div>
+    </div>
+    <div id="auth-signup" class="auth-view">
+      <div class="auth-header">
+        <div class="auth-logo-wrap">
+          <img src="/logo.png" alt="Logo" class="auth-logo-icon">
+          <span class="auth-logo-text">GAMEFLIX</span>
+        </div>
+        <h2 class="auth-title">Create Account</h2>
+        <p class="auth-subtitle">Join the GameFlix community</p>
+      </div>
+      <form class="auth-form" onsubmit="handleSignUp(event)">
+        <div class="auth-field">
+          <label>Email</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="signup-password" placeholder="Create a password" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Confirm Password</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+            <input type="password" id="signup-confirm" placeholder="Confirm your password" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+        <div id="signup-error" class="auth-error" style="display:none"></div>
+        <button type="submit" class="auth-submit">Create Account</button>
+      </form>
+      <div class="auth-switch">
+        Already have an account? <a href="#" onclick="switchAuthView('signin')">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer id="footer">
+  <p class="footer-credits">Made By Riya & GameFlix Development Team With &#x2764;&#xFE0F;</p>
+</footer>
+`
+      document.body.prepend(container)
     }
-  }
-} catch(e) {}
+
+    loadGameFlix()
+  }, [])
+
+  return (
+    <div id="root" style={{ display: 'none' }}>
+      <div id="gameflix-root"></div>
+    </div>
+  )
+}
