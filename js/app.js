@@ -363,18 +363,106 @@ function renderCarousels() {
         <div class="carousel-container"></div>
         <button class="carousel-arrow right" onclick="scrollCarousel(this, 1)">${SVG.chevronRight}</button>
       </div>
+      <div class="screenshot-gallery" id="ss-gallery-${sec.key}">
+        <div class="screenshot-gallery-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          <span>Screenshots</span>
+        </div>
+        <div class="screenshot-strip-wrap">
+          <button class="ss-arrow ss-arrow-left" onclick="scrollScreenshotStrip(this, -1)">${SVG.chevronLeft}</button>
+          <div class="screenshot-strip" id="ss-strip-${sec.key}"></div>
+          <button class="ss-arrow ss-arrow-right" onclick="scrollScreenshotStrip(this, 1)">${SVG.chevronRight}</button>
+        </div>
+      </div>
     `;
     const carousel = section.querySelector('.carousel-container');
     games.forEach(g => carousel.appendChild(createGameCard(g)));
     container.appendChild(section);
     // Drag scrolling
     initCarouselDrag(carousel);
+    // Init screenshot strip drag
+    const ssStrip = section.querySelector('.screenshot-strip');
+    initCarouselDrag(ssStrip);
   });
-  // Intersection Observer for lazy reveal
+  // Intersection Observer for lazy reveal + screenshot loading
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }});
-  }, {threshold:0.1});
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+        // Load screenshots for this section
+        const secKey = e.target.id.replace('section-', '').replace('section-', '');
+        const matchingSec = CAROUSEL_SECTIONS.find(s => s.id === e.target.id);
+        if (matchingSec) loadSectionScreenshots(matchingSec.key);
+      }
+    });
+  }, {threshold:0.1, rootMargin:'200px'});
   document.querySelectorAll('.carousel-section').forEach(s => observer.observe(s));
+}
+
+// ========== SECTION SCREENSHOTS ==========
+const _ssLoadedSections = new Set();
+
+async function loadSectionScreenshots(sectionKey) {
+  if (_ssLoadedSections.has(sectionKey)) return;
+  _ssLoadedSections.add(sectionKey);
+
+  const games = getGamesForSection(sectionKey);
+  const strip = document.getElementById(`ss-strip-${sectionKey}`);
+  if (!strip || !games || games.length === 0) return;
+
+  // Show loading skeletons
+  strip.innerHTML = games.slice(0, 8).map(() => '<div class="ss-skeleton"></div>').join('');
+
+  // Fetch screenshots for all games in parallel (with concurrency limit)
+ const allScreenshots = [];
+  const BATCH_SIZE = 3;
+  for (let i = 0; i < games.length; i += BATCH_SIZE) {
+    const batch = games.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(
+      batch.map(async (g) => {
+        try {
+          const data = await fetchScreenshots(g.id);
+          return (data.screenshots || []).slice(0, 2).map(s => ({
+            ...s,
+            gameTitle: g.title,
+            gameId: g.id
+          }));
+        } catch(e) { return []; }
+      })
+    );
+    results.forEach(r => {
+      if (r.status === 'fulfilled' && r.value) {
+        allScreenshots.push(...r.value);
+      }
+    });
+  }
+
+  if (allScreenshots.length === 0) {
+    strip.innerHTML = '<div class="ss-empty">No screenshots available</div>';
+    return;
+  }
+
+  // Shuffle for variety
+  for (let i = allScreenshots.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allScreenshots[i], allScreenshots[j]] = [allScreenshots[j], allScreenshots[i]];
+  }
+
+  strip.innerHTML = allScreenshots.map(ss => `
+    <div class="ss-item" onclick="openLightbox('${ss.path_full}')" title="${escHtml(ss.gameTitle)}">
+      <img src="${ss.path_thumbnail}" alt="${escHtml(ss.gameTitle)} screenshot" loading="lazy">
+      <div class="ss-item-overlay">
+        <span class="ss-item-title">${escHtml(ss.gameTitle)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function scrollScreenshotStrip(btn, dir) {
+  const container = btn.parentElement.querySelector('.screenshot-strip');
+  const scrollAmt = container.clientWidth * 0.7;
+  container.scrollBy({left: dir * scrollAmt, behavior:'smooth'});
 }
 
 function scrollCarousel(btn, dir) {
@@ -407,6 +495,37 @@ function initCarouselDrag(el) {
     const x = e.touches[0].pageX - el.offsetLeft;
     el.scrollLeft = scrollLeft - (x - startX) * 1.2;
   }, {passive:true});
+}
+
+// ========== KIDS SECTION SCREENSHOTS ==========
+async function loadKidsScreenshots() {
+  const games = getGamesForSection('kids');
+  const grid = document.getElementById('kids-grid');
+  if (!grid || !games || games.length === 0) return;
+
+  // Fetch screenshots for each kids game
+  const BATCH_SIZE = 3;
+  for (let i = 0; i < games.length; i += BATCH_SIZE) {
+    const batch = games.slice(i, i + BATCH_SIZE);
+    await Promise.allSettled(
+      batch.map(async (g) => {
+        try {
+          const data = await fetchScreenshots(g.id);
+          if (data.screenshots && data.screenshots.length > 0) {
+            const ss = data.screenshots[0];
+            const card = grid.querySelector(`.game-card[onclick*="${g.id}"]`);
+            if (card && !card.dataset.ssLoaded) {
+              card.dataset.ssLoaded = 'true';
+              const ssTag = document.createElement('div');
+              ssTag.className = 'card-ss-badge';
+              ssTag.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="10" height="10"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>`;
+              card.querySelector('.card-img-wrap').appendChild(ssTag);
+            }
+          }
+        } catch(e) {}
+      })
+    );
+  }
 }
 
 // ========== KIDS MODE ==========
@@ -452,6 +571,7 @@ function toggleKidsMode() {
 function fetchKidsGames() {
   const kidsGames = getGamesForSection('kids');
   renderKidsGrid(kidsGames);
+  loadKidsScreenshots();
 }
 function renderKidsGrid(games) {
   const grid = document.getElementById('kids-grid');
