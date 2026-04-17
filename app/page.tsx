@@ -1,1048 +1,240 @@
-/* ========== CSS VARIABLES & RESET ========== */
-:root {
-  --red: #e50914;
-  --dark-bg: #0a0a0a;
-  --dark-card: #141414;
-  --dark-surface: #1a1a1a;
-  --dark-border: #262626;
-  --dark-text-sec: #a3a3a3;
-  --dark-text-muted: #737373;
-  --light-bg: #ffffff;
-  --light-card: #f8f8f8;
-  --light-surface: #f1f1f1;
-  --light-border: #e5e7eb;
-  --purple: #a855f7;
-  --navbar-h: 64px;
-  --navbar-bar-h: 3px;
-}
-@media(min-width:768px){ :root{ --navbar-h:68px; } }
+'use client'
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:calc(var(--navbar-h) + var(--navbar-bar-h) + 8px)}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
-  background:var(--bg);color:var(--text);overflow-x:hidden;transition:background .3s,color .3s;
-  -webkit-font-smoothing:antialiased;
-}
-/* Dark mode (default) */
-[data-theme="dark"]{
-  --bg:#0a0a0a;--text:#fff;--card:#141414;--surface:#1a1a1a;--border:#262626;
-  --text-sec:#a3a3a3;--text-muted:#737373;--navbar-bg:rgba(10,10,10,0.85);
-  --card-shadow:0 2px 8px rgba(0,0,0,0.4);--carousel-fade:linear-gradient(to right,#0a0a0a,transparent);
-  --carousel-fade-r:linear-gradient(to left,#0a0a0a,transparent);
-}
-[data-theme="light"]{
-  --bg:#ffffff;--text:#111;--card:#f8f8f8;--surface:#f1f1f1;--border:#e5e7eb;
-  --text-sec:#555;--text-muted:#888;--navbar-bg:rgba(255,255,255,0.85);
-  --card-shadow:0 2px 8px rgba(0,0,0,0.08);--carousel-fade:linear-gradient(to right,#fff,transparent);
-  --carousel-fade-r:linear-gradient(to left,#fff,transparent);
-}
-[data-theme="dark"] ::-webkit-scrollbar{width:8px;height:8px}
-[data-theme="dark"] ::-webkit-scrollbar-track{background:#0a0a0a}
-[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
-[data-theme="light"] ::-webkit-scrollbar{width:8px;height:8px}
-[data-theme="light"] ::-webkit-scrollbar-track{background:#f1f1f1}
-[data-theme="light"] ::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
-a{color:inherit;text-decoration:none}
-button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
-img{display:block;max-width:100%}
-ul,ol{list-style:none}
+import { useEffect } from 'react'
 
-/* ========== KEYFRAMES ========== */
-@keyframes navbarShimmer{
-  0%{transform:translateX(-100%)}
-  100%{transform:translateX(400%)}
-}
-@keyframes fadeIn{
-  from{opacity:0}to{opacity:1}
-}
-@keyframes slideUp{
-  from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}
-}
-@keyframes heroFade{
-  0%{opacity:0}10%{opacity:1}90%{opacity:1}100%{opacity:0}
-}
+export default function Home() {
+  useEffect(() => {
+    // Dynamically load the GameFlix styles and scripts
+    const loadGameFlix = () => {
+      // Load CSS
+      if (!document.getElementById('gameflix-css')) {
+        const link = document.createElement('link')
+        link.id = 'gameflix-css'
+        link.rel = 'stylesheet'
+        link.href = '/css/styles.css?v=' + Date.now()
+        document.head.appendChild(link)
+      }
 
-/* ========== CINEMATIC INTRO ========== */
-#splash{
-  position:fixed;inset:0;z-index:200;background:#000;
-  display:flex;align-items:center;justify-content:center;flex-direction:column;
-  overflow:hidden;
-}
-#splash.fade-out{
-  animation:introFadeOut .6s ease forwards;
-  pointer-events:none;
-}
-@keyframes introFadeOut{
-  to{opacity:0;visibility:hidden}
-}
-/* Stage 1: GAMEFLIX full logo — each letter is a separate span */
-#splash .intro-logo{
-  font-family:'Impact','Arial Black',sans-serif;
-  font-size:clamp(2.5rem,8vw,6rem);
-  font-weight:900;
-  color:#e50914;
-  letter-spacing:clamp(4px,1.5vw,12px);
-  text-transform:uppercase;
-  opacity:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  z-index:2;
-  animation:logoAppear 1s cubic-bezier(0.16,1,0.3,1) 0.2s forwards;
-}
-#splash .intro-logo .letter{
-  display:inline-block;
-  transition:all .4s cubic-bezier(0.4,0,0.2,1);
-  will-change:opacity,transform,filter;
-}
-#splash .intro-logo .letter.trim-away{
-  opacity:0;
-  width:0;
-  overflow:hidden;
-  transform:translateX(30px) scale(0.5) rotateY(90deg);
-  filter:blur(6px);
-}
-#splash .intro-logo .letter.letter-g{
-  transition:all .5s cubic-bezier(0.16,1,0.3,1);
-}
-#splash .intro-logo .letter.letter-g.g-focus{
-  font-size:clamp(8rem,30vw,20rem);
-  color:#e50914;
-}
-#splash .intro-logo .letter.letter-g.g-fadeout{
-  opacity:0;
-  transform:scale(1.4);
-  filter:blur(8px);
-  text-shadow:none;
-}
-@keyframes logoAppear{
-  0%{opacity:0;transform:scale(0.7);filter:blur(8px)}
-  100%{opacity:1;transform:scale(1);filter:blur(0)}
-}
-/* Red glow behind logo during zoom */
-#splash .intro-glow{
-  position:absolute;width:100vw;height:100vh;z-index:1;
-  background:radial-gradient(ellipse at center,rgba(229,9,20,0.15) 0%,transparent 70%);
-  opacity:0;
-  animation:glowPulse 2.5s ease 0.5s forwards;
-}
-@keyframes glowPulse{
-  0%{opacity:0;transform:scale(0.8)}
-  40%{opacity:1;transform:scale(1)}
-  70%{opacity:0.8;transform:scale(1.2)}
-  100%{opacity:0;transform:scale(1.5)}
-}
-/* Light streaks (Netflix-style) */
-#splash .intro-streaks{
-  position:absolute;inset:0;z-index:1;overflow:hidden;
-  opacity:0;
-  animation:streaksAppear 1.5s ease 1s forwards;
-}
-#splash .intro-streaks::before,
-#splash .intro-streaks::after{
-  content:'';position:absolute;top:50%;height:2px;width:0;
-  background:linear-gradient(90deg,transparent,rgba(229,9,20,0.6),transparent);
-}
-#splash .intro-streaks::before{
-  left:10%;transform:translateY(-50%);
-  animation:streakExpand 2s ease 1.2s forwards;
-}
-#splash .intro-streaks::after{
-  right:10%;top:50%;transform:translateY(-50%);
-  animation:streakExpand 2s ease 1.4s forwards;
-}
-@keyframes streaksAppear{to{opacity:1}}
-@keyframes streakExpand{
-  0%{width:0}40%{width:40vw}100%{width:0;opacity:0}
-}
-/* Stage 3: G pulse glow after trim */
-@keyframes gPulse{
-  0%{text-shadow:0 0 60px rgba(229,9,20,0.6),0 0 120px rgba(229,9,20,0.3)}
-  50%{text-shadow:0 0 80px rgba(229,9,20,0.8),0 0 160px rgba(229,9,20,0.4),0 0 240px rgba(229,9,20,0.15)}
-  100%{text-shadow:0 0 60px rgba(229,9,20,0.6),0 0 120px rgba(229,9,20,0.3)}
-}
-/* Skip button */
-#splash .intro-skip{
-  position:fixed;top:24px;right:24px;z-index:210;
-  background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);
-  border:1px solid rgba(255,255,255,0.15);
-  padding:8px 20px;border-radius:6px;font-size:.8rem;font-weight:600;
-  cursor:pointer;letter-spacing:.5px;
-  transition:all .2s ease;
-  opacity:0;
-  animation:skipAppear .4s ease 1.5s forwards;
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-}
-#splash .intro-skip:hover{
-  background:rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);
-  border-color:rgba(255,255,255,0.3);
-}
-@keyframes skipAppear{to{opacity:1}}
+      // Remove default Next.js styles
+      const nextStyles = document.querySelectorAll('style[data-nextjs]')
+      nextStyles.forEach(el => el.remove())
 
-/* ========== NAVBAR ========== */
-#navbar{
-  position:fixed;top:0;left:0;right:0;z-index:50;height:var(--navbar-h);
-  background:var(--navbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  display:flex;align-items:center;padding:0 16px;transition:background .3s;
-}
-#navbar.kids-mode{--red:#a855f7;--navbar-bg:rgba(88,28,135,0.85)}
-#navbar .nav-inner{display:flex;align-items:center;width:100%;max-width:1400px;margin:0 auto}
-#navbar .logo{font-size:1.8rem;font-weight:900;color:#e50914;letter-spacing:2px;margin-right:24px;
-  text-shadow:0 0 20px rgba(229,9,20,0.4);white-space:nowrap;transition:color .3s;display:flex;align-items:center;gap:10px}
-#navbar .logo .logo-icon{height:56px;width:auto;object-fit:contain;filter:drop-shadow(0 0 8px rgba(229,9,20,0.5))}
-#navbar.kids-mode .logo{color:#a855f7;text-shadow:0 0 20px rgba(168,85,247,0.4)}
-#navbar.kids-mode .logo .logo-icon{filter:drop-shadow(0 0 8px rgba(168,85,247,0.5))}
-#navbar .nav-links{display:none;gap:16px;align-items:center}
-@media(min-width:768px){#navbar .nav-links{display:flex}}
-#navbar .nav-links a{font-size:.9rem;font-weight:500;color:var(--text-sec);transition:color .2s}
-#navbar .nav-links a:hover{color:var(--text)}
-#navbar .nav-right{display:flex;align-items:center;gap:10px;margin-left:auto}
-.nav-btn{width:38px;height:38px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;transition:background .2s;color:var(--text-sec)}
-.nav-btn:hover{background:rgba(255,255,255,0.1)}
-[data-theme="light"] .nav-btn:hover{background:rgba(0,0,0,0.08)}
-.nav-btn svg{width:20px;height:20px}
-#search-box{display:none;position:relative}
-@media(min-width:768px){#search-box{display:block}}
-#search-box input{
-  background:var(--surface);border:1px solid var(--border);color:var(--text);
-  border-radius:20px;padding:6px 14px 6px 36px;font-size:.85rem;width:200px;
-  transition:width .3s,border-color .2s;outline:none;
-}
-#search-box input:focus{width:260px;border-color:#e50914}
-#navbar.kids-mode #search-box input:focus{border-color:#a855f7}
-#search-box .search-icon-pos{position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  width:16px;height:16px;color:var(--text-muted);pointer-events:none}
-#search-dropdown{
-  position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:400px;overflow-y:auto;
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.4);display:none;z-index:60;padding:8px;
-}
-#search-dropdown.active{display:block;animation:fadeIn .2s ease}
-.search-result{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;transition:background .15s}
-.search-result:hover{background:var(--surface)}
-.search-result img{width:44px;height:44px;object-fit:cover;border-radius:6px}
-.search-result .sr-info{flex:1;min-width:0}
-.search-result .sr-title{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.search-result .sr-genre{font-size:.75rem;color:var(--text-muted)}
-.kids-btn{
-  background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;font-size:.8rem;
-  font-weight:600;border-radius:20px;padding:4px 14px;display:flex;align-items:center;gap:6px;
-  white-space:nowrap;transition:transform .15s,box-shadow .15s;
-}
-.kids-btn:hover{transform:scale(1.05);box-shadow:0 2px 12px rgba(168,85,247,0.4)}
-.kids-btn svg{width:16px;height:16px}
-.hamburger{display:flex;flex-direction:column;gap:4px;width:38px;height:38px;
-  align-items:center;justify-content:center;border-radius:50%;transition:background .2s}
-.hamburger:hover{background:rgba(255,255,255,0.1)}
-[data-theme="light"] .hamburger:hover{background:rgba(0,0,0,0.08)}
-.hamburger span{display:block;width:20px;height:2px;background:var(--text-sec);border-radius:1px;transition:all .3s}
-.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
-.hamburger.active span:nth-child(2){opacity:0}
-.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
-#mobile-menu{
-  display:none;position:absolute;top:var(--navbar-h);left:0;right:0;
-  background:var(--navbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  padding:12px 16px;border-bottom:1px solid var(--border);animation:fadeIn .2s ease;z-index:49;
-}
-#mobile-menu.active{display:block}
-#mobile-menu a{display:block;padding:10px 0;font-size:.95rem;color:var(--text-sec);border-bottom:1px solid var(--border)}
-#mobile-menu a:last-child{border-bottom:none}
-#mobile-menu a:hover{color:var(--text)}
-#mobile-search{display:block;margin:8px 0 12px}
-#mobile-search input{
-  background:var(--surface);border:1px solid var(--border);color:var(--text);
-  border-radius:20px;padding:8px 14px 8px 36px;font-size:.85rem;width:100%;outline:none;
-}
-.navbar-bar{
-  position:absolute;bottom:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,#b91c1c,#ef4444,#f87171);
-  box-shadow:0 0 8px #ef4444,0 0 16px rgba(239,68,68,0.3);overflow:hidden;
-}
-#navbar.kids-mode .navbar-bar{
-  background:linear-gradient(90deg,#7c3aed,#a855f7,#c084fc);
-  box-shadow:0 0 8px #a855f7,0 0 16px rgba(168,85,247,0.3);
-}
-.navbar-shimmer{
-  position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
-  animation:navbarShimmer 3s linear infinite;
-}
-/* ========== HERO ========== */
-#hero{
-  position:relative;height:50vh;overflow:hidden;
-  margin-top:calc(var(--navbar-h) + var(--navbar-bar-h));
-  transition:height .3s;
-}
-@media(min-width:768px){#hero{height:70vh}}
-.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity .5s ease}
-.hero-slide.active{opacity:1}
-.hero-slide .hero-bg{
-  position:absolute;inset:0;background-size:cover;background-position:center top;
-  background-repeat:no-repeat;transition:transform 6s ease;
-}
-.hero-slide.active .hero-bg{transform:scale(1.05)}
-.hero-slide .hero-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to right,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.4) 50%,rgba(0,0,0,0.2) 100%),
-    linear-gradient(to top,rgba(0,0,0,0.9) 0%,transparent 40%);
-}
-[data-theme="light"] .hero-slide .hero-overlay{
-  background:linear-gradient(to right,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.2) 50%,rgba(0,0,0,0.1) 100%),
-    linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 40%);
-}
-.hero-content{position:absolute;bottom:15%;left:4%;max-width:500px;z-index:2}
-@media(min-width:768px){.hero-content{bottom:20%;left:5%}}
-.hero-badge{
-  display:inline-block;background:#e50914;color:#fff;font-size:.7rem;font-weight:700;
-  padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
-}
-.hero-title{font-size:clamp(1.6rem,4vw,2.8rem);font-weight:800;color:#fff;line-height:1.1;
-  margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
-.hero-desc{font-size:.9rem;color:#ccc;line-height:1.4;margin-bottom:18px;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-@media(min-width:768px){.hero-desc{-webkit-line-clamp:3}}
-.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
-.hero-btns .btn-play{background:#fff;color:#111;font-weight:700;padding:10px 28px;
-  border-radius:6px;font-size:.95rem;display:flex;align-items:center;gap:8px;transition:transform .15s,box-shadow .15s}
-.hero-btns .btn-play:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(255,255,255,0.3)}
-.hero-btns .btn-play svg{width:20px;height:20px}
-.hero-btns .btn-info{background:rgba(255,255,255,0.2);color:#fff;font-weight:600;
-  padding:10px 24px;border-radius:6px;font-size:.95rem;backdrop-filter:blur(4px);
-  display:flex;align-items:center;gap:8px;transition:background .15s}
-.hero-btns .btn-info:hover{background:rgba(255,255,255,0.35)}
-.hero-btns .btn-info svg{width:18px;height:18px}
-.hero-dots{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
-  display:flex;gap:8px;z-index:2}
-.hero-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.3);
-  cursor:pointer;transition:all .3s}
-.hero-dot.active{background:#fff;transform:scale(1.2)}
+      // Load JS
+      if (!document.getElementById('gameflix-js')) {
+        const script = document.createElement('script')
+        script.id = 'gameflix-js'
+        script.src = '/js/app.js?v=' + Date.now()
+        document.body.appendChild(script)
+      }
+    }
 
-/* ========== CAROUSEL SECTIONS ========== */
-#main-content{padding-top:16px;padding-bottom:8px}
-.carousel-section{margin-bottom:20px;opacity:0;transform:translateY(20px);transition:opacity .5s,transform .5s}
-.carousel-section.visible{opacity:1;transform:translateY(0)}
-.carousel-header{display:flex;align-items:center;justify-content:space-between;padding:0 4%;margin-bottom:12px}
-.carousel-title{font-size:1.25rem;font-weight:700;color:var(--text)}
-.carousel-wrap{position:relative;padding:0 4%}
-.carousel-container{
-  display:flex;gap:12px;overflow-x:auto;scroll-behavior:smooth;
-  scrollbar-width:none;-ms-overflow-style:none;padding:8px 0;
-}
-.carousel-container::-webkit-scrollbar{display:none}
-.carousel-fade{
-  position:absolute;top:0;bottom:0;width:60px;pointer-events:none;z-index:2;
-}
-.carousel-fade.left{left:4%;background:var(--carousel-fade)}
-.carousel-fade.right{right:4%;background:var(--carousel-fade-r)}
-.carousel-arrow{
-  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
-  width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,0.6);
-  border:1px solid rgba(255,255,255,0.1);color:#fff;display:flex;align-items:center;
-  justify-content:center;opacity:0;transition:opacity .3s,background .2s;cursor:pointer;
-}
-.carousel-wrap:hover .carousel-arrow{opacity:1}
-.carousel-arrow:hover{background:rgba(0,0,0,0.85)}
-.carousel-arrow.left{left:calc(4% - 8px)}
-.carousel-arrow.right{right:calc(4% - 8px)}
-.carousel-arrow svg{width:22px;height:22px}
+    // Clear the page and inject GameFlix HTML
+    document.body.setAttribute('data-theme', 'dark')
+    document.body.style.cssText = ''
 
-/* ========== GAME CARDS ========== */
-.game-card{
-  flex-shrink:0;position:relative;border-radius:10px;overflow:hidden;cursor:pointer;
-  transition:transform .25s,box-shadow .25s;background:var(--card);
-  box-shadow:var(--card-shadow);
-}
-.game-card:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(0,0,0,0.5)}
-[data-theme="light"] .game-card:hover{box-shadow:0 8px 25px rgba(0,0,0,0.15)}
-.game-card .card-img-wrap{position:relative;padding-top:133.33%;overflow:hidden;background:#1a1a1a}
-.game-card .card-img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  transition:transform .4s;
-}
-.game-card:hover .card-img{transform:scale(1.08)}
-.game-card .card-gradient{
-  position:absolute;bottom:0;left:0;right:0;height:55%;
-  background:linear-gradient(to top,rgba(0,0,0,0.85),transparent);pointer-events:none;
-}
-.game-card .card-genre-badge{
-  position:absolute;top:8px;right:8px;background:rgba(229,9,20,0.8);color:#fff;
-  font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:4px;text-transform:uppercase;
-  letter-spacing:.5px;z-index:1;
-}
-.game-card .card-rating-badge{
-  position:absolute;top:8px;left:8px;display:flex;align-items:center;gap:1px;
-  background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  color:#fff;font-size:.55rem;font-weight:700;padding:3px 6px;border-radius:6px;
-  letter-spacing:0;z-index:1;border:1px solid rgba(255,255,255,0.08);
-}
-.game-card .card-rating-badge .rating-num{color:#fbbf24;font-size:.6rem;margin-left:2px;font-weight:800}
-.game-card .card-title{
-  position:absolute;bottom:0;left:0;right:0;padding:10px;z-index:1;
-  font-size:.8rem;font-weight:600;color:#fff;
-  text-shadow:0 1px 4px rgba(0,0,0,0.8);line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-}
+    // Always inject fresh HTML (remove any stale container first)
+    const oldRoot = document.getElementById('gameflix-root')
+    if (oldRoot) oldRoot.remove()
+    // Also remove old script so it gets re-loaded with fresh DOM
+    const oldScript = document.getElementById('gameflix-js')
+    if (oldScript) oldScript.remove()
+    // Also remove old CSS so it gets re-loaded
+    const oldCSS = document.getElementById('gameflix-css')
+    if (oldCSS) oldCSS.remove()
 
-/* Card widths */
-.game-card{width:150px}
-@media(min-width:640px){.game-card{width:170px}}
-@media(min-width:768px){.game-card{width:190px}}
-@media(min-width:1280px){.game-card{width:210px}}
+    // Hide the default Next.js content
+    const root = document.getElementById('root')
+    if (root) {
+      root.innerHTML = ''
+      root.style.display = 'none'
+    }
 
-/* ========== GAME DETAIL OVERLAY ========== */
-#game-detail{
-  position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);
-  display:none;overflow-y:auto;padding:20px;animation:fadeIn .3s ease;
-}
-#game-detail.active{display:flex;align-items:flex-start;justify-content:center;padding-top:30px}
-.detail-close{
-  position:fixed;top:16px;right:16px;z-index:101;width:44px;height:44px;border-radius:50%;
-  background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.15);color:#fff;
-  display:flex;align-items:center;justify-content:center;transition:background .2s;
-}
-.detail-close:hover{background:rgba(229,9,20,0.6)}
-.detail-close svg{width:22px;height:22px}
-.detail-card{
-  background:#141414;border-radius:16px;max-width:1000px;width:100%;
-  overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);
-  display:flex;flex-direction:column;animation:slideUp .4s ease;
-}
-@media(min-width:768px){
-  .detail-card{flex-direction:row}
-}
-.detail-left{
-  flex-shrink:0;width:100%;max-height:300px;overflow:hidden;
-}
-@media(min-width:768px){
-  .detail-left{width:300px;max-height:none}
-}
-.detail-left img{width:100%;height:100%;object-fit:cover}
-.detail-right{flex:1;padding:24px;overflow-y:auto;max-height:80vh}
-@media(max-width:767px){
-  .detail-right{max-height:none}
-}
-.detail-title{font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:10px}
-.detail-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.detail-badge{font-size:.72rem;font-weight:600;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px}
-.detail-badge.genre{background:rgba(229,9,20,0.2);color:#f87171}
-.detail-badge.platform{background:rgba(59,130,246,0.2);color:#60a5fa}
-.detail-badge.status{background:rgba(34,197,94,0.2);color:#4ade80}
-.detail-meta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
-.detail-meta-item{display:flex;align-items:center;gap:6px;font-size:.82rem;color:#a3a3a3}
-.detail-meta-item svg{width:16px;height:16px;color:#737373}
-.detail-short-desc{font-size:.9rem;color:#ccc;line-height:1.5;margin-bottom:18px}
-.detail-btn-play{
-  display:inline-flex;align-items:center;gap:8px;background:#e50914;color:#fff;
-  font-weight:700;padding:12px 32px;border-radius:8px;font-size:1rem;
-  transition:transform .15s,box-shadow .15s;
-}
-.detail-btn-play:hover{transform:scale(1.03);box-shadow:0 4px 20px rgba(229,9,20,0.4)}
-.detail-btn-play svg{width:20px;height:20px}
-.detail-section{margin-top:24px}
-.detail-section h3{font-size:1rem;font-weight:700;color:#fff;margin-bottom:12px}
-.detail-screenshots{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.detail-screenshots img{width:100%;border-radius:8px;aspect-ratio:16/9;object-fit:cover;cursor:pointer;
-  transition:transform .2s;border:1px solid #262626}
-.detail-screenshots img:hover{transform:scale(1.03)}
-.detail-screenshots .no-ss{color:#737373;font-size:.85rem;grid-column:1/-1}
-.detail-desc{font-size:.88rem;color:#ccc;line-height:1.6}
-.detail-desc img{max-width:100%;border-radius:8px;margin:8px 0}
-.detail-reqs{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.req-item{background:#1a1a1a;border-radius:8px;padding:10px 14px;border:1px solid #262626}
-.req-label{font-size:.7rem;font-weight:600;color:#737373;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.req-value{font-size:.82rem;color:#ccc;word-break:break-word}
+    const container = document.createElement('div')
+    container.id = 'gameflix-root'
+      container.innerHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAMEFLIX - Free Game Discovery</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body data-theme="dark">
 
-/* ========== KIDS GRID ========== */
-#kids-content{display:none}
-#kids-content.active{display:block}
-.kids-grid{
-  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:0 4%;
-}
-@media(min-width:640px){.kids-grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1024px){.kids-grid{grid-template-columns:repeat(4,1fr)}}
-.kids-header{text-align:center;padding:12px 4% 8px}
-.kids-header h2{font-size:1.5rem;font-weight:800;color:#a855f7;margin-bottom:6px}
-.kids-header p{color:var(--text-sec);font-size:.9rem}
-.kids-grid .game-card{width:100%}
+<!-- ========== CINEMATIC INTRO ========== -->
+<div id="splash">
+  <div class="intro-glow"></div>
+  <div class="intro-streaks"></div>
+  <div class="intro-logo" id="intro-logo">
+    <span class="letter letter-g">G</span><span class="letter">A</span><span class="letter">M</span><span class="letter">E</span><span class="letter">F</span><span class="letter">L</span><span class="letter">I</span><span class="letter">X</span>
+  </div>
+  <button class="intro-skip" id="intro-skip">Skip Intro ▸</button>
+</div>
 
+<!-- ========== NAVBAR ========== -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="logo" onclick="scrollToTop(event)"><img src="/logo.png" alt="GameFlix Logo" class="logo-icon">GAMEFLIX</a>
+    <div class="nav-links" id="nav-links">
+      <a href="#" onclick="scrollToTop(event)">Home</a>
+      <a href="#" onclick="scrollToSection(event,'section-popular')">Popular</a>
+      <a href="#" onclick="scrollToSection(event,'section-adventure')">Adventure</a>
+      <a href="#" onclick="scrollToSection(event,'section-horror')">Horror</a>
+      <a href="#" onclick="scrollToSection(event,'section-new-releases')">New Releases</a>
+    </div>
+    <div class="nav-right">
+      <div id="search-box">
+        <svg class="search-icon-pos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search-input" placeholder="Search games..." autocomplete="off">
+        <div id="search-dropdown"></div>
+      </div>
+      <button class="nav-btn" id="search-toggle-btn" title="Search" style="display:none" onclick="toggleMobileSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      </button>
+      <button class="kids-btn" id="kids-toggle" onclick="toggleKidsMode()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="5"/><path d="M12 15v3"/><path d="M8 20h8"/><path d="M9 5c0-1 .5-2 1.5-2"/><path d="M15 5c0-1-.5-2-1.5-2"/></svg>
+        Kids
+      </button>
+      <button class="auth-nav-btn" id="auth-nav-btn" onclick="openAuthModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Sign In
+      </button>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu">
+    <input type="text" id="mobile-search" placeholder="Search games..." autocomplete="off" oninput="handleMobileSearch(this.value)">
+    <a href="#" onclick="scrollToTop(event);closeMobileMenu()">Home</a>
+    <a href="#" onclick="scrollToSection(event,'section-popular');closeMobileMenu()">Popular</a>
+    <a href="#" onclick="scrollToSection(event,'section-adventure');closeMobileMenu()">Adventure</a>
+    <a href="#" onclick="scrollToSection(event,'section-horror');closeMobileMenu()">Horror</a>
+    <a href="#" onclick="scrollToSection(event,'section-new-releases');closeMobileMenu()">New Releases</a>
+  </div>
+  <div class="navbar-bar"><div class="navbar-shimmer"></div></div>
+</nav>
 
+<!-- ========== HERO SECTION ========== -->
+<div id="hero">
+  <div id="hero-slides"></div>
+  <div class="hero-dots" id="hero-dots"></div>
+</div>
 
-/* ========== LOADING SKELETONS ========== */
-.skeleton{
-  background:linear-gradient(90deg,var(--surface) 25%,var(--border) 50%,var(--surface) 75%);
-  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;
-}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.skeleton-card{width:150px;flex-shrink:0;border-radius:10px;overflow:hidden}
-@media(min-width:640px){.skeleton-card{width:170px}}
-@media(min-width:768px){.skeleton-card{width:190px}}
-@media(min-width:1280px){.skeleton-card{width:210px}}
-.skeleton-card .s-img{padding-top:133.33%;background:var(--surface)}
-.skeleton-card .s-bar{height:12px;margin:8px;background:var(--surface);border-radius:4px}
-.skeleton-hero{width:100%;height:50vh;background:var(--surface)}
-@media(min-width:768px){.skeleton-hero{height:70vh}}
+<!-- ========== MAIN CONTENT ========== -->
+<div id="main-content">
+  <div id="normal-content"></div>
+  <div id="kids-content">
+    <div class="kids-header">
+      <h2>Kids Games</h2>
+      <p>Safe, fun games for players of all ages!</p>
+    </div>
+    <div class="kids-grid" id="kids-grid"></div>
+  </div>
+</div>
 
-/* ========== EXIT KIDS BTN ========== */
-.exit-kids-btn{
-  background:rgba(255,255,255,0.15);color:#fff;font-size:.78rem;font-weight:600;
-  padding:4px 12px;border-radius:16px;border:1px solid rgba(255,255,255,0.2);
-  transition:background .2s;
-}
-.exit-kids-btn:hover{background:rgba(255,255,255,0.25)}
+<!-- ========== GAME DETAIL OVERLAY ========== -->
+<div id="game-detail">
+  <button class="detail-close" onclick="closeGameDetail()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="detail-card" id="detail-card"></div>
+</div>
 
-/* ========== IMAGE LIGHTBOX ========== */
-#lightbox{
-  position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);display:none;
-  align-items:center;justify-content:center;padding:40px;cursor:pointer;
-}
-#lightbox.active{display:flex}
-#lightbox img{max-width:100%;max-height:100%;border-radius:8px;object-fit:contain}
+<!-- ========== LIGHTBOX ========== -->
+<div id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt="Screenshot"></div>
 
-/* ========== AUTH NAV BUTTON ========== */
-.auth-nav-wrap{position:relative}
-.auth-nav-btn{
-  display:flex;align-items:center;gap:6px;padding:6px 16px;
-  background:linear-gradient(135deg,#e50914,#b91c1c);color:#fff;
-  border-radius:20px;font-size:.8rem;font-weight:700;white-space:nowrap;
-  transition:transform .15s,box-shadow .15s;
-}
-.auth-nav-btn:hover{transform:scale(1.05);box-shadow:0 2px 12px rgba(229,9,20,0.4)}
-.auth-nav-btn svg{width:16px;height:16px}
-.auth-nav-btn.logged-in{
-  background:var(--surface);border:1px solid var(--border);gap:8px;padding:4px 12px 4px 4px;border-radius:24px;
-}
-.auth-nav-btn.logged-in:hover{background:var(--border)}
-.auth-nav-btn .user-avatar{
-  width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#e50914,#f87171);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.75rem;
-  overflow:hidden;
-}
-.auth-nav-btn .user-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+<!-- ========== AUTH MODAL ========== -->
+<div id="auth-modal" class="auth-modal">
+  <div class="auth-backdrop" onclick="closeAuthModal()"></div>
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuthModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <div id="auth-signin" class="auth-view active">
+      <div class="auth-header">
+        <div class="auth-logo-wrap">
+          <img src="/logo.png" alt="Logo" class="auth-logo-icon">
+          <span class="auth-logo-text">GAMEFLIX</span>
+        </div>
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-subtitle">Sign in to your account</p>
+      </div>
+      <form class="auth-form" onsubmit="handleSignIn(event)">
+        <div class="auth-field">
+          <label>Email</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="signin-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="signin-password" placeholder="Enter your password" required autocomplete="current-password">
+          </div>
+        </div>
+        <div id="signin-error" class="auth-error" style="display:none"></div>
+        <button type="submit" class="auth-submit">Sign In</button>
+      </form>
+      <div class="auth-switch">
+        Don't have an account? <a href="#" onclick="switchAuthView('signup')">Create one</a>
+      </div>
+    </div>
+    <div id="auth-signup" class="auth-view">
+      <div class="auth-header">
+        <div class="auth-logo-wrap">
+          <img src="/logo.png" alt="Logo" class="auth-logo-icon">
+          <span class="auth-logo-text">GAMEFLIX</span>
+        </div>
+        <h2 class="auth-title">Create Account</h2>
+        <p class="auth-subtitle">Join the GameFlix community</p>
+      </div>
+      <form class="auth-form" onsubmit="handleSignUp(event)">
+        <div class="auth-field">
+          <label>Email</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <input type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <input type="password" id="signup-password" placeholder="Create a password" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Confirm Password</label>
+          <div class="auth-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+            <input type="password" id="signup-confirm" placeholder="Confirm your password" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+        <div id="signup-error" class="auth-error" style="display:none"></div>
+        <button type="submit" class="auth-submit">Create Account</button>
+      </form>
+      <div class="auth-switch">
+        Already have an account? <a href="#" onclick="switchAuthView('signin')">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
 
-/* ========== AUTH MODAL ========== */
-.auth-modal{position:fixed;inset:0;z-index:300;display:none}
-.auth-modal.active{display:flex}
-.auth-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.auth-card{
-  position:relative;z-index:1;margin:auto;
-  background:#181818;border:1px solid #2a2a2a;border-radius:20px;
-  width:100%;max-width:420px;padding:32px 28px;
-  box-shadow:0 24px 80px rgba(0,0,0,0.6);
-  animation:slideUp .4s cubic-bezier(0.16,1,0.3,1);
-  max-height:90vh;overflow-y:auto;
-}
-@media(max-width:480px){.auth-card{margin:16px;border-radius:16px;padding:24px 20px}}
-.auth-close{
-  position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;
-  background:rgba(255,255,255,0.08);color:#888;display:flex;align-items:center;justify-content:center;
-  transition:all .2s;
-}
-.auth-close:hover{background:rgba(255,255,255,0.15);color:#fff}
-.auth-close svg{width:18px;height:18px}
+<!-- ========== FOOTER ========== -->
+<footer id="footer">
+  <p class="footer-credits">Made By Riya & GameFlix Development Team With &#x2764;&#xFE0F;</p>
+</footer>
+`
+      document.body.prepend(container)
 
-/* Auth views */
-.auth-view{display:none}
-.auth-view.active{display:block;animation:fadeIn .3s ease}
+    loadGameFlix()
+  }, [])
 
-/* Auth header */
-.auth-header{text-align:center;margin-bottom:24px}
-.auth-logo-wrap{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
-.auth-logo-icon{height:36px;width:auto;object-fit:contain;filter:drop-shadow(0 0 6px rgba(229,9,20,0.5))}
-.auth-logo-text{font-size:1.3rem;font-weight:900;color:#e50914;letter-spacing:2px}
-.auth-title{font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:4px}
-.auth-subtitle{font-size:.88rem;color:#888}
-
-/* Social buttons */
-.auth-social{display:flex;flex-direction:column;gap:10px}
-.auth-social-btn{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  padding:11px 16px;border-radius:10px;font-size:.88rem;font-weight:600;
-  border:1px solid #333;background:#1a1a1a;color:#e5e5e5;
-  transition:all .2s;cursor:pointer;
+  return (
+    <div id="root" style={{ display: 'none' }}></div>
+  )
 }
-.auth-social-btn:hover{background:#222;border-color:#444}
-.auth-social-btn svg{flex-shrink:0}
-.auth-social-btn.google:hover{border-color:#4285F4;background:rgba(66,133,244,0.08)}
-.auth-social-btn.github:hover{border-color:#fff;background:rgba(255,255,255,0.08)}
-
-/* Divider */
-.auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#333}
-.auth-divider span{font-size:.78rem;color:#666;text-transform:uppercase;letter-spacing:1px}
-
-/* Form */
-.auth-form{display:flex;flex-direction:column;gap:14px}
-.auth-field label{display:block;font-size:.78rem;font-weight:600;color:#a3a3a3;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.auth-input-wrap{
-  display:flex;align-items:center;gap:10px;
-  background:#0f0f0f;border:1px solid #333;border-radius:10px;
-  padding:0 14px;transition:border-color .2s;
-}
-.auth-input-wrap:focus-within{border-color:#e50914}
-.auth-input-wrap svg{flex-shrink:0;color:#666}
-.auth-input-wrap input{
-  flex:1;background:none;border:none;color:#e5e5e5;font-size:.9rem;
-  padding:12px 0;outline:none;
-}
-.auth-input-wrap input::placeholder{color:#555}
-
-/* Error */
-.auth-error{
-  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);
-  color:#f87171;font-size:.82rem;padding:10px 14px;border-radius:8px;
-  animation:fadeIn .2s ease;
-}
-
-/* Submit */
-.auth-submit{
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,#e50914,#b91c1c);color:#fff;
-  font-size:.95rem;font-weight:700;padding:13px 24px;border-radius:10px;
-  border:none;cursor:pointer;transition:all .2s;margin-top:4px;
-}
-.auth-submit:hover{transform:scale(1.02);box-shadow:0 4px 20px rgba(229,9,20,0.35)}
-.auth-submit:active{transform:scale(0.98)}
-.auth-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.auth-submit-loader{display:flex;align-items:center}
-
-/* Switch */
-.auth-switch{text-align:center;margin-top:20px;font-size:.85rem;color:#888}
-.auth-switch a{color:#e50914;font-weight:600;text-decoration:none;transition:color .2s}
-.auth-switch a:hover{color:#f87171;text-decoration:underline}
-
-/* Logged-in user dropdown */
-.user-dropdown{
-  position:absolute;top:calc(100% + 8px);right:0;width:200px;
-  background:#1a1a1a;border:1px solid #333;border-radius:12px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.5);padding:8px;z-index:60;
-  display:none;animation:fadeIn .2s ease;
-}
-.user-dropdown.active{display:block}
-.user-dropdown-item{
-  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
-  font-size:.85rem;color:#ccc;cursor:pointer;transition:background .15s;
-}
-.user-dropdown-item:hover{background:#262626;color:#fff}
-.user-dropdown-item svg{width:16px;height:16px;color:#888}
-.user-dropdown-item.danger{color:#f87171}
-.user-dropdown-item.danger svg{color:#f87171}
-.user-dropdown-item.danger:hover{background:rgba(239,68,68,0.1)}
-.user-dropdown-sep{height:1px;background:#333;margin:4px 0}
-.user-dropdown-header{padding:10px 12px;display:flex;align-items:center;gap:10px}
-.user-dropdown-header .udh-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e50914,#f87171);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:.85rem;flex-shrink:0}
-.user-dropdown-header .udh-info{flex:1;min-width:0}
-.user-dropdown-header .udh-name{font-size:.85rem;font-weight:600;color:#e5e5e5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.user-dropdown-header .udh-email{font-size:.7rem;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* ========== FOOTER ========== */
-#footer{
-  text-align:center;
-  padding:28px 16px 24px;
-  margin-top:24px;
-  border-top:1px solid var(--border);
-}
-.footer-credits{
-  font-size:.85rem;
-  color:var(--text-muted);
-  font-weight:500;
-  letter-spacing:.3px;
-}
-
-/* ========== OAUTH POPUP ========== */
-.oauth-popup{
-  position:fixed;inset:0;z-index:400;display:none;
-  align-items:center;justify-content:center;
-}
-.oauth-popup.active{display:flex}
-.oauth-backdrop{
-  position:absolute;inset:0;
-  background:rgba(0,0,0,0.55);
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-}
-
-/* Browser-like window */
-.oauth-window{
-  position:relative;z-index:1;
-  width:100%;max-width:460px;
-  max-height:92vh;
-  border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 25px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08);
-  animation:oauthWindowIn .35s cubic-bezier(0.16,1,0.3,1);
-}
-@keyframes oauthWindowIn{
-  from{opacity:0;transform:scale(0.92) translateY(20px)}
-  to{opacity:1;transform:scale(1) translateY(0)}
-}
-@keyframes oauthWindowOut{
-  from{opacity:1;transform:scale(1) translateY(0)}
-  to{opacity:0;transform:scale(0.92) translateY(20px)}
-}
-@media(max-width:500px){
-  .oauth-window{
-    max-width:100%;margin:8px;border-radius:10px;
-    max-height:95vh;
-  }
-}
-
-/* Titlebar */
-.oauth-titlebar{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 14px;
-  background:#2a2a2e;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  user-select:none;
-}
-.oauth-titlebar-dots{display:flex;gap:7px;flex-shrink:0}
-.oauth-dot{width:12px;height:12px;border-radius:50%}
-.oauth-dot-close{background:#ff5f57;cursor:pointer;transition:filter .15s}
-.oauth-dot-close:hover{filter:brightness(1.2)}
-.oauth-dot-min{background:#febc2e}
-.oauth-dot-max{background:#28c840}
-.oauth-urlbar{
-  flex:1;display:flex;align-items:center;gap:8px;
-  background:rgba(0,0,0,0.25);
-  border-radius:6px;padding:5px 12px;
-}
-.oauth-url-text{
-  font-size:.72rem;color:#888;font-family:monospace;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
-/* Body container */
-.oauth-body{
-  overflow-y:auto;overflow-x:hidden;
-  max-height:calc(92vh - 46px);
-  background:#fff;
-}
-.oauth-window.github-mode .oauth-body{background:#0d1117}
-
-/* Steps */
-.oauth-step{animation:oauthStepIn .25s ease}
-@keyframes oauthStepIn{
-  from{opacity:0;transform:translateX(16px)}
-  to{opacity:1;transform:translateX(0)}
-}
-
-/* ---- GOOGLE OAUTH STYLES ---- */
-.oauth-google-container{
-  padding:24px 32px 32px;min-height:340px;
-  display:flex;flex-direction:column;align-items:center;
-}
-.oauth-google-logo{margin-bottom:16px}
-.oauth-google-heading{
-  font-size:24px;color:#202124;font-weight:400;
-  margin-bottom:2px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-subheading{
-  font-size:16px;color:#202124;font-weight:400;
-  margin-bottom:24px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-form{width:100%;max-width:360px}
-
-/* Floating label input */
-.oauth-google-field{
-  position:relative;
-  margin-bottom:4px;
-}
-.oauth-google-field input{
-  width:100%;
-  padding:13px 15px 5px;
-  border:1px solid #dadce0;
-  border-radius:4px;
-  font-size:16px;
-  color:#202124;
-  outline:none;
-  transition:border-color .2s;
-  background:#fff;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-field input:focus{border-color:#1a73e8;border-width:2px;padding:12px 14px 4px}
-.oauth-google-field input:not(:placeholder-shown) + label,
-.oauth-google-field input:focus + label{
-  top:4px;font-size:12px;color:#1a73e8;
-}
-.oauth-google-field label{
-  position:absolute;left:15px;top:50%;transform:translateY(-50%);
-  font-size:16px;color:#5f6368;
-  pointer-events:none;transition:all .15s ease;
-  transform-origin:left center;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-error{
-  color:#d93025;font-size:12px;
-  margin:4px 0 8px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-next-btn{
-  margin-top:8px;
-  background:#1a73e8;color:#fff;
-  border:none;border-radius:4px;
-  padding:9px 24px;
-  font-size:14px;font-weight:500;
-  cursor:pointer;letter-spacing:.25px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  transition:background .2s,box-shadow .2s;
-}
-.oauth-google-next-btn:hover{background:#1765cc;box-shadow:0 1px 3px rgba(26,115,232,0.4)}
-.oauth-google-next-btn:active{background:#1558b0}
-
-/* Step 2 — Choose Account */
-.oauth-google-choose-heading{
-  font-size:17px;color:#202124;font-weight:400;
-  margin-bottom:4px;text-align:center;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-choose-sub{
-  font-size:14px;color:#5f6368;margin-bottom:20px;text-align:center;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-account-list{width:100%;max-width:360px;margin-bottom:16px}
-.oauth-google-account-item{
-  display:flex;align-items:center;gap:14px;
-  width:100%;padding:12px 16px;
-  border:1px solid #dadce0;border-radius:8px;
-  background:#fff;cursor:pointer;
-  transition:background .15s,border-color .15s;
-  margin-bottom:8px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-account-item:hover{background:#f7f8f8;border-color:#dadce0}
-.oauth-google-avatar{
-  width:40px;height:40px;border-radius:50%;
-  background:#1a73e8;color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;font-weight:500;flex-shrink:0;
-}
-.oauth-google-account-info{text-align:left}
-.oauth-google-account-name{
-  font-size:16px;color:#202124;font-weight:500;
-}
-.oauth-google-account-email{
-  font-size:14px;color:#5f6368;margin-top:2px;
-}
-.oauth-google-use-diff{
-  margin-top:4px;
-}
-.oauth-google-use-diff button{
-  background:none;border:none;color:#1a73e8;
-  font-size:14px;font-weight:500;cursor:pointer;
-  padding:8px 12px;border-radius:4px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  transition:background .15s;
-}
-.oauth-google-use-diff button:hover{background:#f1f3f4}
-
-/* Step 3 — Consent */
-.oauth-google-consent{padding:24px 32px 32px}
-.oauth-google-consent-logo-row{
-  display:flex;align-items:center;gap:12px;
-  margin-bottom:24px;flex-wrap:wrap;
-}
-.oauth-google-consent-app{
-  display:flex;align-items:center;gap:10px;
-}
-.oauth-consent-app-icon{
-  width:40px;height:40px;border-radius:50%;
-  background:#fff;border:1px solid #e0e0e0;
-  overflow:hidden;flex-shrink:0;
-}
-.oauth-consent-app-name{font-size:14px;font-weight:600;color:#202124}
-.oauth-consent-app-url{font-size:12px;color:#5f6368}
-.oauth-google-consent-provider{
-  display:flex;align-items:center;gap:6px;
-}
-.oauth-google-consent-heading{
-  font-size:16px;color:#202124;font-weight:600;
-  margin-bottom:4px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-consent-body{
-  font-size:14px;color:#3c4043;line-height:1.5;
-  margin-bottom:20px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-consent-scopes{
-  background:#f8f9fa;border:1px solid #e8eaed;
-  border-radius:8px;padding:16px 20px;
-  margin-bottom:24px;
-}
-.oauth-google-consent-scopes>p{
-  font-size:13px;color:#5f6368;margin-bottom:12px;font-weight:500;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-consent-scopes ul{list-style:none;display:flex;flex-direction:column;gap:10px}
-.oauth-google-consent-scopes li{
-  display:flex;align-items:center;gap:10px;
-  font-size:13px;color:#3c4043;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-google-consent-scopes li svg{flex-shrink:0}
-.oauth-google-consent-actions{
-  display:flex;align-items:center;justify-content:flex-end;gap:8px;
-}
-.oauth-google-cancel-btn{
-  background:none;border:none;color:#1a73e8;
-  font-size:14px;font-weight:500;cursor:pointer;
-  padding:8px 16px;border-radius:4px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  transition:background .15s;
-}
-.oauth-google-cancel-btn:hover{background:#f1f3f4}
-.oauth-google-continue-btn{
-  background:#1a73e8;color:#fff;border:none;
-  border-radius:4px;padding:8px 24px;
-  font-size:14px;font-weight:500;cursor:pointer;
-  letter-spacing:.25px;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-  transition:background .2s,box-shadow .2s;
-}
-.oauth-google-continue-btn:hover{background:#1765cc;box-shadow:0 1px 3px rgba(26,115,232,0.4)}
-
-/* ---- GITHUB OAUTH STYLES ---- */
-.oauth-github-container{
-  padding:32px 32px 24px;min-height:340px;
-  display:flex;flex-direction:column;align-items:center;
-  background:#0d1117;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-}
-.oauth-github-header{
-  display:flex;flex-direction:column;align-items:center;
-  margin-bottom:24px;
-}
-.oauth-github-heading{
-  font-size:24px;font-weight:300;color:#c9d1d9;
-  margin-top:16px;letter-spacing:-0.5px;
-}
-.oauth-github-form{width:100%;max-width:340px}
-.oauth-github-label{
-  display:block;font-size:14px;font-weight:600;
-  color:#c9d1d9;margin-bottom:6px;
-}
-.oauth-github-input{
-  width:100%;padding:5px 12px;
-  background:#0d1117;color:#c9d1d9;
-  border:1px solid #30363d;border-radius:6px;
-  font-size:14px;outline:none;
-  transition:border-color .2s;
-  min-height:30px;
-}
-.oauth-github-input:focus{border-color:#58a6ff;box-shadow:0 0 0 3px rgba(56,139,253,0.3)}
-.oauth-github-input::placeholder{color:#484f58}
-.oauth-github-error{
-  color:#f85149;font-size:12px;margin:8px 0;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-}
-.oauth-github-signin-btn{
-  margin-top:16px;width:100%;
-  background:#238636;color:#fff;border:none;
-  border-radius:6px;padding:5px 16px;
-  font-size:14px;font-weight:600;cursor:pointer;
-  transition:background .2s;
-}
-.oauth-github-signin-btn:hover{background:#2ea043}
-.oauth-github-signin-btn:active{background:#238636}
-.oauth-github-footer{
-  margin-top:16px;
-}
-.oauth-github-footer a{
-  font-size:12px;color:#c9d1d9;
-  transition:color .15s;
-}
-.oauth-github-footer a:hover{color:#58a6ff}
-
-/* GitHub Step 2 — Authorize */
-.oauth-github-authorize-header{
-  text-align:center;margin-bottom:20px;
-  width:100%;max-width:340px;
-}
-.oauth-github-authorize-icons{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  margin-bottom:20px;
-}
-.oauth-github-authorize-user-icon{
-  width:48px;height:48px;border-radius:50%;
-  background:#30363d;color:#c9d1d9;
-  display:flex;align-items:center;justify-content:center;
-  font-size:20px;font-weight:600;flex-shrink:0;
-}
-.oauth-github-authorize-app-icon{
-  width:48px;height:48px;
-  background:#0d1117;border:1px solid #30363d;
-  border-radius:6px;overflow:hidden;flex-shrink:0;
-}
-.oauth-github-authorize-heading{
-  font-size:20px;font-weight:600;color:#c9d1d9;
-  margin-bottom:8px;letter-spacing:-0.3px;
-}
-.oauth-github-authorize-sub{
-  font-size:14px;color:#8b949e;line-height:1.5;
-}
-.oauth-github-authorize-card{
-  width:100%;max-width:340px;
-  background:#161b22;border:1px solid #30363d;
-  border-radius:6px;padding:16px 20px;
-  margin-bottom:20px;
-}
-.oauth-github-authorize-card-header{
-  font-size:16px;font-weight:600;color:#c9d1d9;
-  margin-bottom:16px;
-}
-.oauth-github-authorize-scopes{
-  list-style:none;display:flex;flex-direction:column;gap:12px;
-}
-.oauth-github-authorize-scopes li{
-  display:flex;align-items:center;gap:8px;
-  font-size:14px;color:#c9d1d9;
-}
-.oauth-github-authorize-scopes li svg{flex-shrink:0}
-.oauth-github-authorize-actions{
-  display:flex;align-items:center;justify-content:flex-end;gap:8px;
-  width:100%;max-width:340px;
-}
-.oauth-github-authorize-cancel-btn{
-  background:none;border:none;color:#c9d1d9;
-  font-size:14px;font-weight:500;cursor:pointer;
-  padding:5px 16px;border-radius:6px;
-  transition:background .15s;
-}
-.oauth-github-authorize-cancel-btn:hover{background:#30363d}
-.oauth-github-authorize-btn{
-  background:#238636;color:#fff;border:none;
-  border-radius:6px;padding:5px 16px;
-  font-size:14px;font-weight:600;cursor:pointer;
-  transition:background .2s;
-}
-.oauth-github-authorize-btn:hover{background:#2ea043}
-.oauth-github-authorize-btn:active{background:#238636}
-
-/* ---- LOADING / SUCCESS ---- */
-.oauth-loading-container{
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:60px 32px;
-  min-height:280px;
-}
-.oauth-window.github-mode .oauth-loading-container{
-  background:#0d1117;
-}
-.oauth-spinner{display:flex;align-items:center;justify-content:center}
-.oauth-success-check{
-  display:flex;align-items:center;justify-content:center;
-  animation:oauthCheckPop .4s cubic-bezier(0.16,1,0.3,1);
-}
-@keyframes oauthCheckPop{
-  0%{transform:scale(0);opacity:0}
-  60%{transform:scale(1.15)}
-  100%{transform:scale(1);opacity:1}
-}
-.oauth-loading-text{
-  margin-top:20px;font-size:14px;color:#5f6368;
-  font-family:'Google Sans','Noto Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-}
-.oauth-window.github-mode .oauth-loading-text{color:#8b949e}
