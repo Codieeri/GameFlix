@@ -531,12 +531,6 @@ function renderDetailCard(g) {
       <div class="detail-section">
         <h3>About</h3>
         <div class="detail-desc" id="detail-full-desc">${escHtml(g.short_description || 'No description available.')}</div>
-        <div class="detail-section" id="detail-screenshots-section" style="display:none">
-  <h3>Screenshots</h3>
-  <div class="detail-screenshots">
-    <div style="padding:12px;color:gray">Loading screenshots...</div>
-  </div>
-</div>
       </div>
     </div>
   `;
@@ -551,14 +545,10 @@ function closeGameDetail() {
 
 // ========== LIGHTBOX ==========
 function openLightbox(src) {
-  const img = document.getElementById('lightbox-img');
-  if (img) {
-    img.src = src;
-    img.style.display = 'block';
-  }
+  event && event.stopPropagation();
+  document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox').classList.add('active');
 }
-
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('active');
 }
