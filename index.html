@@ -22,7 +22,14 @@
 <!-- ========== NAVBAR ========== -->
 <nav id="navbar">
   <div class="nav-inner">
-    <a href="#" class="logo" onclick="scrollToTop(event)"><img src="logo.png" alt="GameFlix Logo" class="logo-icon">GAMEFLIX</a>
+
+    <!-- LEFT: Logo + Brand -->
+    <a href="#" class="logo" onclick="scrollToTop(event)">
+      <img src="logo.png" alt="GameFlix Logo" class="logo-icon">
+      <span class="brand-text">GAMEFLIX</span>
+    </a>
+
+    <!-- CENTER: Links -->
     <div class="nav-links" id="nav-links">
       <a href="#" onclick="scrollToTop(event)">Home</a>
       <a href="#" onclick="scrollToSection(event,'section-popular')">Popular</a>
@@ -30,7 +37,7 @@
       <a href="#" onclick="scrollToSection(event,'section-horror')">Horror</a>
       <a href="#" onclick="scrollToSection(event,'section-new-releases')">New Releases</a>
     </div>
-    <div class="nav-right">
+ <div class="nav-right">
       <div id="search-box">
         <svg class="search-icon-pos" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="search-input" placeholder="Search games..." autocomplete="off">
